@@ -4,7 +4,7 @@ namespace App\Http\Requests\Api\Post;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreRequest extends FormRequest
+class UpdateRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,7 +16,9 @@ class StoreRequest extends FormRequest
         return [
             'title' => 'required|string',
             'content' => 'required|string',
-            'images' => 'required|array',
+            'images' => 'nullable|array',
+            'deleteImageIds' => 'nullable|array',
+            'deleteImageUrls' => 'nullable|array',
         ];
     }
 }

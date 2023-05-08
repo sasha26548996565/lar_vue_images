@@ -9,7 +9,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::name('post.')->prefix('post')->group(function () {
     Route::get('/', 'PostController@index');
-    Route::post('/store', 'PostController@store');
+    Route::patch('/update/{post}', 'PostController@update');
 });
 
 Route::name('image.')->prefix('image')->group(function () {

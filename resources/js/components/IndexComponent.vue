@@ -4,9 +4,9 @@
         <div ref="dropzone" class="btn d-block bg-dark mt-2 text-center text-light">
             Upload images
         </div>
-        <input @click.prevent="store()" type="submit" class="btn btn-success mt-2" value="Create post">
+        <input @click.prevent="update()" type="submit" class="btn btn-success mt-2" value="Update post">
         <div class="mt-5">
-            <vue-editor useCustomImageHandler @image-added="handleImageAdded" v-model="content" />
+            <vue-editor useCustomImageHandler @image-removed="handleImageRemoved" @image-added="handleImageAdded" v-model="content" />
         </div>
         <div class="mt-5" v-if="post">
             <h5>{{ post.title }}</h5>
@@ -33,6 +33,8 @@ export default {
             title: '',
             content: '',
             dropzone: null,
+            deleteImageIds: [],
+            deleteImageUrls: [],
         }
     },
     mounted() {
@@ -41,6 +43,9 @@ export default {
             autoProcessQueue: false,
             addRemoveLinks: true
         });
+        this.dropzone.on('removedfile', file => {
+            this.deleteImageIds.push(file.id);
+        });
         this.getPost();
     },
     methods: {
@@ -48,25 +53,41 @@ export default {
             axios.get('/api/post')
                 .then(response => {
                     this.post = response.data.data;
+                    this.title = this.post.title;
+                    this.content = this.post.content;
+
+                    this.post.images.forEach(image => {
+                        let file = { id: image.id, name: image.name, size: image.size };
+                        this.dropzone.displayExistingFile(file, image.preview_url);
+                    });
                 });
         },
-        store() {
+        update() {
             const formData = new FormData();
+            const images = this.dropzone.getAcceptedFiles();
             formData.append('title', this.title);
             formData.append('content', this.content);
-            const images = this.dropzone.getAcceptedFiles();
+            this.deleteImageIds.forEach(imageId => {
+                formData.append('deleteImageIds[]', imageId);
+            });
+            this.deleteImageUrls.forEach(imageUrl => {
+                formData.append('deleteImageUrls[]', imageUrl);
+            });
             images.forEach(image => {
                 formData.append('images[]', image);
                 this.dropzone.removeFile(image);
             });
-            axios.post('/api/post/store', formData)
+            formData.append('_method', 'PATCH');
+            axios.post(`/api/post/update/${this.post.id}`, formData)
                 .then(response => {
-                    this.title = '';
-                    this.content = '';
                     this.getPost();
+                    let previews = this.dropzone.previewsContainer.querySelectorAll('.dz-image-preview');
+                    previews.forEach(preview => {
+                        preview.remove();
+                    });
                 });
         },
-        handleImageAdded: function (file, Editor, cursorLocation, resetUploader) {
+        handleImageAdded: (file, Editor, cursorLocation, resetUploader) => {
             const formData = new FormData();
             formData.append("image", file);
 
@@ -76,6 +97,9 @@ export default {
                     Editor.insertEmbed(cursorLocation, "image", url);
                     resetUploader();
                 });
+        },
+        handleImageRemoved(url) {
+            this.deleteImageUrls.push(url);
         }
     },
     components: {
