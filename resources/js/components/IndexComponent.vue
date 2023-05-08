@@ -10,7 +10,8 @@
         </div>
         <div class="mt-5" v-if="post">
             <h5>{{ post.title }}</h5>
-            <div v-for="image in post.images" :key="image.id" class="mt-2">
+            <div class="ql-editor" v-html="post.content"></div>
+            <div class="mt-2" v-for="image in post.images" :key="image.id">
                 <img :src="image.url" class="w-25" :alt="post.title">
                 <img :src="image.preview_url" class="w-10" :alt="post.title">
             </div>
@@ -28,9 +29,9 @@ export default {
     name: 'IndexComponent',
     data() {
         return {
-            content: null,
             post: null,
             title: '',
+            content: '',
             dropzone: null,
         }
     },
@@ -52,6 +53,7 @@ export default {
         store() {
             const formData = new FormData();
             formData.append('title', this.title);
+            formData.append('content', this.content);
             const images = this.dropzone.getAcceptedFiles();
             images.forEach(image => {
                 formData.append('images[]', image);
@@ -60,6 +62,7 @@ export default {
             axios.post('/api/post/store', formData)
                 .then(response => {
                     this.title = '';
+                    this.content = '';
                     this.getPost();
                 });
         },
@@ -72,9 +75,6 @@ export default {
                     const url = result.data.url;
                     Editor.insertEmbed(cursorLocation, "image", url);
                     resetUploader();
-                })
-                .catch(err => {
-                    console.log(err);
                 });
         }
     },
@@ -83,3 +83,10 @@ export default {
     }
 }
 </script>
+
+<style>
+    .dz-success-mark,
+    .dz-error-mark {
+        display: none;
+    }
+</style>

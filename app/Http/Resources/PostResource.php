@@ -12,6 +12,7 @@ class PostResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'content' => $this->content,
             'images' => ImageResource::collection($this->images)
         ];
     }
