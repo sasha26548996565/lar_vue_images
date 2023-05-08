@@ -5,6 +5,9 @@
             Upload images
         </div>
         <input @click.prevent="store()" type="submit" class="btn btn-success mt-2" value="Create post">
+        <div class="mt-5">
+            <vue-editor useCustomImageHandler @image-added="handleImageAdded" v-model="content" />
+        </div>
         <div class="mt-5" v-if="post">
             <h5>{{ post.title }}</h5>
             <div v-for="image in post.images" :key="image.id" class="mt-2">
@@ -19,11 +22,13 @@
 <script>
 import axios from 'axios';
 import Dropzone from 'dropzone';
+import { VueEditor } from 'vue3-editor';
 
 export default {
     name: 'IndexComponent',
     data() {
         return {
+            content: null,
             post: null,
             title: '',
             dropzone: null,
@@ -57,7 +62,24 @@ export default {
                     this.title = '';
                     this.getPost();
                 });
+        },
+        handleImageAdded: function (file, Editor, cursorLocation, resetUploader) {
+            const formData = new FormData();
+            formData.append("image", file);
+
+            axios.post("/api/image/store", formData)
+                .then(result => {
+                    const url = result.data.url;
+                    Editor.insertEmbed(cursorLocation, "image", url);
+                    resetUploader();
+                })
+                .catch(err => {
+                    console.log(err);
+                });
         }
+    },
+    components: {
+        VueEditor
     }
 }
 </script>

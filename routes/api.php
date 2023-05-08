@@ -11,3 +11,7 @@ Route::name('post.')->prefix('post')->group(function () {
     Route::get('/', 'PostController@index');
     Route::post('/store', 'PostController@store');
 });
+
+Route::name('image.')->prefix('image')->group(function () {
+    Route::post('/store', 'ImageController@store');
+});
