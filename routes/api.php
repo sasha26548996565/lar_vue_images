@@ -8,5 +8,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::name('post.')->prefix('post')->group(function () {
+    Route::get('/', 'PostController@index');
     Route::post('/store', 'PostController@store');
 });
