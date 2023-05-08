@@ -9,6 +9,7 @@
             <h5>{{ post.title }}</h5>
             <div v-for="image in post.images" :key="image.id" class="mt-2">
                 <img :src="image.url" class="w-25" :alt="post.title">
+                <img :src="image.preview_url" class="w-10" :alt="post.title">
             </div>
             <hr>
         </div>
@@ -54,6 +55,7 @@ export default {
             axios.post('/api/post/store', formData)
                 .then(response => {
                     this.title = '';
+                    this.getPost();
                 });
         }
     }

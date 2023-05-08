@@ -12,7 +12,7 @@ class Image extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['url', 'path', 'post_id'];
+    protected $fillable = ['url', 'path', 'post_id', 'preview_url'];
 
     public function post(): BelongsTo
     {

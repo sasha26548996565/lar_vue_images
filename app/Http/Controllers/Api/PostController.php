@@ -22,7 +22,7 @@ class PostController extends Controller
 
     public function index(): PostResource
     {
-        return new PostResource(Post::first());
+        return new PostResource(Post::orderBy('id', 'DESC')->first());
     }
 
     public function store(StoreRequest $request): PostResource
